@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "mode": "simulation",
+  "now": 0,
+  "events": [
+    {
+      "id": "order-success",
+      "payload": { "scenario": "success" },
+      "createdAt": 0,
+      "state": "delivered",
+      "nextAttemptAt": null,
+      "attempts": [{ "number": 1, "at": 0, "status": 200, "nextAttemptAt": null }],
+      "effects": 1
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+data/
+*.sqlite*
+.DS_Store
+
+tests/.tmp/
+
+# Never commit local credentials.
+.env
+.env.*
+!.env.example

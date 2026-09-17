@@ -1,0 +1,18 @@
+[
+  {
+    "id": "order-success",
+    "payload": { "type": "order.completed", "scenario": "success", "order": "ORD-2048" }
+  },
+  {
+    "id": "order-retry",
+    "payload": { "type": "order.completed", "scenario": "retry", "order": "ORD-2049" }
+  },
+  {
+    "id": "order-reject",
+    "payload": { "type": "order.completed", "scenario": "reject", "order": "ORD-2050" }
+  },
+  {
+    "id": "order-exhaust",
+    "payload": { "type": "order.completed", "scenario": "exhaust", "order": "ORD-2051" }
+  }
+]

@@ -71,3 +71,11 @@ Checked 17 September 2026:
 - [MDN Origin header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Origin) — browser-origin boundary, including opaque `null` origins.
 
 Exact dependencies are resolved in `package-lock.json`. Node 24.19 was used locally. Dependency audit output is only one package-advisory signal, not a security audit.
+
+## Refinement: queue navigation is a projection
+
+`nextDueAt` finds the earliest nonterminal deadline from the authoritative simulation. `advanceToNextDue` advances by the exact nonnegative difference and delegates to the same `processDue` policy. A reducer action makes this transition atomic and pauses auto-run. No retry is skipped by jumping directly to the last attempt, and all deliveries due at the same timestamp are processed together. Terminal-only queues do not advance.
+
+The ledger derives matching events during render from a bounded 128-character query and a state selector. Search considers event ID/type/scenario; no regular expression or user code executes. The authoritative events and selected ID do not change when filters change. A selection outside the current filter is explicitly announced, so the inspector never silently switches records. Export and clock actions always use the complete queue.
+
+The existing receiver effect count distinguishes an actual receipt from a pending/dead delivery in duplicate feedback. Service persistence, acknowledgements, canonical identity and HTTP behavior remain the same. UI refinements add no localStorage or network requests. React's derived-state guidance and [Playwright assertions](https://playwright.dev/docs/test-assertions) were rechecked against current official documentation for this pass.

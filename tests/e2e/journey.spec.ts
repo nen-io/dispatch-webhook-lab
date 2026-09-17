@@ -110,3 +110,36 @@ test('desktop and mobile populated screenshots; narrow layout and keyboard acces
     true,
   );
 });
+
+test('triages matching events without hiding inspector identity, then clears filters', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByLabel('Delivery state').selectOption('pending');
+  await expect(page.locator('.event-row')).toHaveCount(2);
+  await page.getByLabel('Find event').fill('evt_0004');
+  await expect(page.locator('.event-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Inspect evt_0004', exact: true }).click();
+  await page.getByRole('button', { name: 'Next due attempt', exact: true }).click();
+  await page.getByRole('button', { name: 'Next due attempt', exact: true }).click();
+  await page.getByRole('button', { name: 'Next due attempt', exact: true }).click();
+  await expect(page.getByTestId('clock')).toHaveText('00:07.000');
+  await expect(page.getByRole('button', { name: 'Next due attempt', exact: true })).toBeDisabled();
+  await expect(page.locator('.inspector').getByRole('heading', { name: 'evt_0004' })).toBeVisible();
+  await expect(page.getByText('Selected event is outside these filters.')).toBeVisible();
+  await expect(page.getByText('No events match your filters.')).toBeVisible();
+  const exported = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export log' }).click();
+  const stream = await (await exported).createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  const log = JSON.parse(Buffer.concat(chunks).toString());
+  expect(log.events).toHaveLength(4);
+  expect(log.now).toBe(7000);
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(page.locator('.event-row')).toHaveCount(4);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByLabel('Find event').fill('ORDER.COMPLETED');
+  await expect(page.locator('.event-row')).toHaveCount(4);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

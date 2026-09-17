@@ -6,8 +6,8 @@ Executed locally on 17 September 2026 using Node 24.19.0, npm 11.17.0 and the pi
 
 | Command / action                   | Result                                                                                                                           |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`                    | Passed strict TypeScript, 16 Vitest tests across two files, and Vite production build                                            |
-| `npm run test:e2e`                 | 3 Chromium journeys passed; real desktop and mobile screenshots written                                                          |
+| `npm run check`                    | Passed strict TypeScript, 19 Vitest tests across two files, and Vite production build                                            |
+| `npm run test:e2e`                 | 4 Chromium journeys passed; real desktop and mobile screenshots written                                                          |
 | `npm run service` + HTTP CLI smoke | Port 4403 health 200, intake 201, process 200; delivered event with one stored attempt and one effect; service stopped afterward |
 | Independent parent browser review  | Desktop appearance inspected; no JS page errors or page overflow at 1440, 720, 390 and 320px in its checks                       |
 | Independent parent axe scan        | Zero WCAG2/2.1AA violations on the initial state inspected; an automated sample, not accessibility certification                 |
@@ -55,3 +55,9 @@ These are captured from the running app by the third Playwright test, and were v
 ## Limits of evidence
 
 Chromium is covered; Safari/Firefox, assistive-technology interaction and physical phones were not tested. Axe only sampled the independently reviewed initial state. Keyboard smoke does not prove complete screen-reader usability. No penetration test, large-scale benchmark, network partition chaos run, external receiver, multi-process worker test or long-duration soak was performed. The simulated browser does not validate real API uptime. Unit/integration success is separate from public deployment and independent final review, which are owned by the parent publishing workflow.
+
+## Refinement verification
+
+The added tests were run red before implementation: next-due actions had no behavior; pending/dead duplicate feedback claimed an original receipt; the real browser could not find delivery-state filtering. After implementation,19 unit/service tests and4 Chromium journeys pass. Existing disk-persistence, real HTTP, concurrency and lost-ack tests remain unchanged and passing. The new browser journey combines filtering, selection, exact next-due stepping and terminal/empty states at desktop and390px.
+
+The existing720px doubled-text regression detected overflow in the enlarged clock action group. Constraining that group to available width and permitting wrapped controls fixed it; the same test passes. Refreshed desktop/mobile screenshots include next-due and triage controls. A baseline screenshot is retained as `screenshots/refinement-before.png` for comparison. This pass did not start a manual service; service integration tests exercise their own ephemeral loopback instances.

@@ -3,6 +3,21 @@ export interface Simulation {
   now: number;
   events: Delivery[];
 }
+/** The earliest pending deadline; terminal deliveries never keep the clock busy. */
+export function nextDueAt(state: Simulation): number | null {
+  let next: number | null = null;
+  for (const event of state.events) {
+    if (event.state === 'pending' && event.nextAttemptAt !== null)
+      next = next === null ? event.nextAttemptAt : Math.min(next, event.nextAttemptAt);
+  }
+  return next;
+}
+export function advanceToNextDue(state: Simulation): Simulation {
+  const due = nextDueAt(state);
+  if (due === null) return state;
+  // Already-due work is processed now; never turn the virtual clock backwards.
+  return advance(state, Math.max(0, due - state.now));
+}
 export function advance(state: Simulation, milliseconds = 1000): Simulation {
   const now = state.now + milliseconds;
   return { now, events: processDue(state.events, now) };

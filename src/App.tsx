@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import type { Scenario } from './domain/policy';
-import { formatTime } from './domain/simulation';
+import { formatTime, nextDueAt } from './domain/simulation';
 import { initialLab, labReducer } from './domain/lab';
 import { Ledger } from './components/Ledger';
 import { Inspector } from './components/Inspector';
@@ -53,6 +53,7 @@ export default function App() {
     '{"type":"order.completed","scenario":"success"}',
   );
   const event = simulation.events.find((item) => item.id === selected);
+  const nextDue = nextDueAt(simulation);
   useEffect(() => {
     if (!running) return;
     const timer = window.setInterval(() => dispatch({ type: 'advance' }), 1000);
@@ -147,8 +148,14 @@ export default function App() {
             <small>
               {running ? 'Running · 1 simulated second / tick' : 'Paused · advance at your pace'}
             </small>
+            <small className="next-due-summary">
+              {nextDue === null ? 'No pending attempts' : `Next due ${formatTime(nextDue)}`}
+            </small>
           </div>
           <div className="clock-actions">
+            <button disabled={nextDue === null} onClick={() => dispatch({ type: 'next-due' })}>
+              Next due attempt
+            </button>
             <button className="subtle" onClick={() => dispatch({ type: 'toggle' })}>
               {running ? 'Pause' : 'Auto-run'} <span aria-hidden="true">{running ? 'Ⅱ' : '▷'}</span>
             </button>

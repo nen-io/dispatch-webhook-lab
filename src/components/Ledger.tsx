@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Delivery } from '../domain/policy';
 import { formatTime } from '../domain/simulation';
 export function Status({ state }: { state: Delivery['state'] }) {
@@ -17,6 +18,20 @@ export function Ledger({
   selected: string | null;
   onSelect: (id: string) => void;
 }) {
+  const [search, setSearch] = useState('');
+  const [state, setState] = useState('all');
+  const query = search.trim().toLocaleLowerCase();
+  const filtered = events.filter(
+    (event) =>
+      (state === 'all' || event.state === state) &&
+      [event.id, event.payload.type ?? 'custom.event', event.payload.scenario ?? 'success'].some(
+        (value) => String(value).toLocaleLowerCase().includes(query),
+      ),
+  );
+  const filteredSelection =
+    selected !== null &&
+    events.some((event) => event.id === selected) &&
+    !filtered.some((event) => event.id === selected);
   return (
     <section className="panel ledger" aria-labelledby="ledger-heading">
       <div className="panel-heading">
@@ -25,6 +40,43 @@ export function Ledger({
           <h2 id="ledger-heading">Every attempt. Accounted for.</h2>
         </div>
         <span className="count-pill">{events.length} events</span>
+      </div>
+      <div className="ledger-tools">
+        <label>
+          Find event
+          <input
+            type="search"
+            value={search}
+            maxLength={128}
+            placeholder="Event ID, type or scenario"
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+        <label>
+          Delivery state
+          <select value={state} onChange={(event) => setState(event.target.value)}>
+            <option value="all">All states</option>
+            <option value="pending">Retry queued</option>
+            <option value="delivered">Delivered</option>
+            <option value="dead">Dead letter</option>
+          </select>
+        </label>
+        <button
+          className="subtle"
+          disabled={!search && state === 'all'}
+          onClick={() => {
+            setSearch('');
+            setState('all');
+          }}
+        >
+          Clear filters
+        </button>
+      </div>
+      <div className="ledger-filter-summary" aria-live="polite">
+        <span>
+          {filtered.length} of {events.length} events shown
+        </span>
+        {filteredSelection && <span>Selected event is outside these filters.</span>}
       </div>
       {events.length === 0 ? (
         <div className="empty">
@@ -41,7 +93,7 @@ export function Ledger({
             <span>NEXT RETRY</span>
           </div>
           <div className="event-list">
-            {[...events].reverse().map((event) => (
+            {[...filtered].reverse().map((event) => (
               <button
                 key={event.id}
                 className={`event-row ${selected === event.id ? 'selected' : ''}`}
@@ -81,6 +133,7 @@ export function Ledger({
               </button>
             ))}
           </div>
+          {!filtered.length && <p className="filtered-empty">No events match your filters.</p>}
         </>
       )}
       <footer className="panel-footer">

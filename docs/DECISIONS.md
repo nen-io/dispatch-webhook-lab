@@ -71,3 +71,13 @@
 **Consequences.** No hash collision reasoning is needed and numeric/prototype-like keys are data, not special behavior. Values such as 1 and 1.0 compare equal after JSON parsing, as expected. JSON duplicate key names follow the parser's final value; byte identity is not a promise. Small bounded payloads make full strings affordable.
 
 **Revisit.** For large binary payloads, define a canonical envelope/digest algorithm and independently validate its collision and serialization assumptions before changing receipt identity.
+
+## ADR 6 — Exact next-due batches and non-destructive triage
+
+**Context.** Following the four-second backoff required repeated empty +1s ticks, while a 100-event session had no focused view. Duplicate notices incorrectly implied that pending/dead deliveries already had receipts.
+
+**Decision.** Add a deterministic jump to the earliest pending deadline, pause for inspection, and retain the manual one-second control. Derive search/state filtering directly from events; keep selection, full-queue processing and export independent of visibility. Reuse the existing effect count to describe receiver receipts accurately.
+
+**Alternatives.** Accelerated wall-clock playback obscures exact timestamps. Advancing directly to the final outcome skips intermediate evidence. Filtering the domain collection would lose work or produce incomplete exports. Automatically selecting another visible event would make the inspector change identity unexpectedly.
+
+**Consequences.** Exact scheduling remains testable through the shared policy. Filtering is bounded linear work across at most100 events; the inspector can deliberately show an event outside the filter with a clear notice. The refinement changes no durable service schema or delivery guarantee.

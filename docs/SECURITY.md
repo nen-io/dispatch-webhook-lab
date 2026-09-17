@@ -40,3 +40,7 @@ There is no browser persistence to validate or repair. SQLite uses a schema vers
 ## Reporting
 
 For a non-sensitive issue, use this repository's issue tracker once published. For a sensitive vulnerability, use GitHub's private vulnerability reporting if enabled; otherwise ask the maintainer for a private channel without posting exploit data or secrets. No unverified contact address is provided.
+
+## Refinement boundary
+
+Ledger search is a bounded plain-text substring comparison across ID/type/scenario and never changes the queue, receipts, export or receiver. Next-due stepping uses existing validated simulation deadlines and the existing policy; it introduces no endpoint or arbitrary time input. Duplicate messages now distinguish absent receipts for pending/dead deliveries. All original HTTP, persistence, crash-replay and input-bound tests still run.

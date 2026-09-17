@@ -34,3 +34,7 @@ Add authenticated API clients, explicit per-client quotas and overload responses
 At 10,000+ events or independent producers, introduce a durable worker queue or database claim/lease with fencing, a transactional outbox, configurable bounded concurrency and indexes verified with query plans. Partition fairness by tenant/endpoint and define per-endpoint rate/burst budgets. Use randomized backoff and `Retry-After` handling to avoid synchronized storms. A replicated database may replace SQLite if availability/write concurrency requirements justify it.
 
 Keep receiver idempotency decisions atomic with effects where possible. Moving receipts to a cache weakens guarantees unless eviction and recovery are designed. Distributed leases do not create exactly-once external side effects: require receiver-side idempotency, durable reconciliation and observability. Define retention, backups, restore tests and privacy controls before adding replicas or caches. These are design directions, not implemented features or experience claims.
+
+## Refinement costs
+
+Next-due selection and ledger filtering are O(E) over the existing100-event cap. The search field is limited to128 characters, compares a small set of display fields and creates a view array only; it does not copy full payloads or persist indexes. Full-queue export and processing remain independent of the visible subset. No throughput claim is inferred from this UI change.

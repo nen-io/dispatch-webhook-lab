@@ -21,3 +21,9 @@ Invalid IDs and JSON appear next to the labelled composer with a live error anno
 ## Phone, zoom and motion
 
 At 700px the rail becomes a compact top bar, actions wrap, scenario cards use two columns, lane nodes stack, and the ledger/inspector become a single column. At 380px cards become a single column. Layouts use min-width:0 and wrapping code, permitting 320px and enlarged text without horizontal page overflow. Tables become labelled row cards on phones. All controls are keyboard native and navigation has a skip link. Reduced-motion disables decorative pulse and transition; no task depends on animation.
+
+## Refinement: triage and exact retry stepping
+
+Keep the operations-desk layout. Add a compact next-due summary and a clearly labelled **Next due attempt** action beside existing clock controls. One activation advances to the earliest pending timestamp and processes that due batch; no waiting or hidden simulation-speed multiplier. It pauses auto-run so the user can inspect exactly what changed. No pending delivery means a disabled action and an explicit idle state.
+
+Add a labelled search field and delivery-state selector inside the ledger. Filtering is a view of the same queue, never a deletion or a change to delivery processing/export. Show the matching/total count and a clear-filter action. Retain the selected event in the inspector when it leaves the filter, and say so explicitly. All tools wrap into a single column on narrow screens. Duplicate notices distinguish an existing pending/dead delivery from a committed receiver receipt.

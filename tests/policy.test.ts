@@ -109,3 +109,43 @@ it('serializes ticks and input without dropping time or events', () => {
   expect(state.selected).toBe('evt_0007');
   expect(state.simulation.events.at(-1)?.createdAt).toBe(1000);
 });
+
+it('steps exactly to the next due batch without skipping intermediate retries', () => {
+  let state = initialLab();
+  for (const now of [1000, 3000, 7000]) {
+    state = labReducer(state, { type: 'next-due' });
+    expect(state.simulation.now).toBe(now);
+  }
+  expect(
+    state.simulation.events.find((event) => event.id === 'evt_0002')?.attempts.map((a) => a.at),
+  ).toEqual([0, 1000, 3000]);
+  expect(
+    state.simulation.events.find((event) => event.id === 'evt_0004')?.attempts.map((a) => a.at),
+  ).toEqual([0, 1000, 3000, 7000]);
+  const done = state.simulation;
+  state = labReducer(state, { type: 'next-due' });
+  expect(state.simulation).toBe(done);
+});
+
+it('does not claim a receiver receipt for a pending or dead duplicate', () => {
+  for (const id of ['evt_0002', 'evt_0003']) {
+    const state = initialLab();
+    const event = state.simulation.events.find((item) => item.id === id)!;
+    const next = labReducer(state, { type: 'submit', input: { id, payload: event.payload } });
+    expect(next.message).toContain('No receiver receipt exists yet');
+    expect(next.simulation.events.find((item) => item.id === id)?.effects).toBe(0);
+    expect(next.simulation.events.find((item) => item.id === id)?.attempts).toHaveLength(1);
+  }
+});
+
+it('next-due stepping pauses auto-run and an empty queue never advances', () => {
+  let state = labReducer(initialLab(), { type: 'toggle' });
+  expect(state.running).toBe(true);
+  state = labReducer(state, { type: 'next-due' });
+  expect(state.running).toBe(false);
+  expect(state.simulation.now).toBe(1000);
+  const reset = labReducer(state, { type: 'reset' });
+  const idle = labReducer(reset, { type: 'next-due' });
+  expect(idle.simulation).toBe(reset.simulation);
+  expect(idle.message).toContain('No pending attempts');
+});

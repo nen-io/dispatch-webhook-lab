@@ -1,5 +1,12 @@
 import { enqueue, processDue, type Scenario } from './policy';
-import { advance, formatTime, initialSimulation, seed, type Simulation } from './simulation';
+import {
+  advance,
+  advanceToNextDue,
+  formatTime,
+  initialSimulation,
+  seed,
+  type Simulation,
+} from './simulation';
 export interface LabState {
   simulation: Simulation;
   selected: string | null;
@@ -11,6 +18,7 @@ export type Action =
   | { type: 'seed'; scenario: Scenario }
   | { type: 'submit'; input: unknown }
   | { type: 'advance'; manual?: boolean }
+  | { type: 'next-due' }
   | { type: 'toggle' }
   | { type: 'reset' }
   | { type: 'select'; id: string }
@@ -50,7 +58,9 @@ export function labReducer(state: LabState, action: Action): LabState {
           selected: result.event.id,
           error: '',
           message: result.duplicate
-            ? `Duplicate accepted. Original receipt ${result.event.id} reused; no new delivery or receiver effect.`
+            ? result.event.effects === 1
+              ? `Duplicate accepted. Original receipt ${result.event.id} reused; no new delivery or receiver effect.`
+              : `Duplicate accepted. Existing ${result.event.state} delivery ${result.event.id} reused. No receiver receipt exists yet; no new delivery was created.`
             : `${result.event.id} accepted and processed.`,
         };
       }
@@ -64,6 +74,19 @@ export function labReducer(state: LabState, action: Action): LabState {
         };
       case 'toggle':
         return { ...state, running: !state.running };
+      case 'next-due': {
+        const simulation = advanceToNextDue(state.simulation);
+        return {
+          ...state,
+          simulation,
+          running: false,
+          error: '',
+          message:
+            simulation === state.simulation
+              ? 'No pending attempts. Virtual clock is unchanged.'
+              : `Advanced to ${formatTime(simulation.now)}. Due batch processed; auto-run paused for inspection.`,
+        };
+      }
       case 'reset':
         return {
           simulation: { now: 0, events: [] },

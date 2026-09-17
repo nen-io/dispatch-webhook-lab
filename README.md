@@ -101,3 +101,7 @@ Implementation and documentation were developed with AI assistance and reviewed 
 - [Asset provenance](docs/ASSETS.md)
 
 MIT licensed. See [LICENSE](LICENSE).
+
+## Exploration refinements
+
+Use **Next due attempt** to step through exact backoff boundaries. Search/filter the ledger to focus on a scenario or state; processing and JSON export always retain the full queue. The inspector keeps its selected event with an explicit notice if that event leaves your filter. Pending/dead duplicate messages distinguish their existing delivery from a committed receiver receipt.

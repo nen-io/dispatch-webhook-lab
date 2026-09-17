@@ -74,7 +74,11 @@ export function Inspector({
             <button className="subtle" onClick={conflict}>
               Try changed payload
             </button>
-            <small>Same ID + same payload returns the original receipt.</small>
+            <small>
+              {event.effects === 1
+                ? 'Same ID + same payload returns the original receipt.'
+                : 'Replay reuses this delivery. No receiver receipt has been committed.'}
+            </small>
           </div>
         </>
       )}

@@ -28,3 +28,10 @@ Architecture diagram, API examples, run commands for static demo and local servi
 
 ## Completion gate
 Implement the behavior and acceptance tests above; document any deliberate limitation. `npm run check` and `npm run test:e2e` must pass. Independently review the code and exercise the production build before release. Verify the public demo at its GitHub repository subpath.
+
+## Refinement contract — 17 September 2026
+
+- Next due attempt advances to the earliest pending timestamp, processes every event due at that instant, and pauses auto-run for inspection. With no pending events it is disabled and does not move the clock. Existing +1s behavior stays available.
+- Ledger search matches ID, event type or scenario case-insensitively; the state filter combines with search. Show matching/total counts and clear controls. Filtering never changes processing, receipts or JSON export. If selected delivery leaves the filter, preserve the inspector and explicitly label that situation.
+- Duplicate feedback claims a committed receiver receipt only when a receiver effect exists. Pending/dead duplicates reuse their existing delivery without inventing a receipt.
+- Regression evidence includes exact 0/1/3/7-second backoff, no-op idle stepping, paused stepping, pending/dead duplicate feedback, filtered inspector continuity, complete export and narrow/2× text layouts.
